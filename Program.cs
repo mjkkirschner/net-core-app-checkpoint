@@ -1,39 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace netcoreConfig
+namespace CsharpIndicesRangesCheckpoint
 {
-
-    class Program
+    [TestClass]
+    public class TestsBefore
     {
-        static public string DefaultConnectionString { get; } = @"someConnectionString";
-        static IReadOnlyDictionary<string, string> DefaultConnectionStrings { get; } =
-        new Dictionary<string, string>()
+        readonly string[] GRADES = new string[]
+            {
+                "A", "B", "C", "D", "F"
+            };
+
+        [TestMethod]
+        public void GetGradeFromEnd_WhenCalledWithValidNumber_ShouldReturnGradeFromEnd()
         {
-            {"profile:Username", Environment.UserName},
-            {"AppConfiguration:ConnectionString", DefaultConnectionString},
-            {"width", "50"}
-        };
+            string result = getGradeFromEnd(4);
 
-        static public IConfiguration Configuration { get; set; }
+            Assert.AreEqual("B", result);
+        }
 
-        static void Main(string[] args)
+        private string getGradeFromEnd(int indexFromEnd)
         {
-            args.ToList().ForEach(x => Console.WriteLine(x));
-            
-            ConfigurationBuilder builder = new ConfigurationBuilder();
-            builder.AddInMemoryCollection(DefaultConnectionStrings);
-            builder.AddJsonFile("./appsettings.json", false, true);
-            //add args to config.
-            builder.AddCommandLine(args);
-            Configuration = builder.Build();
+            Index item = ^indexFromEnd;
+            return GRADES[item];
+        }
 
-            //Console.SetWindowSize(Int32.Parse(Configuration["AppConfiguration:MainWindow:Width"]),Int32.Parse(Configuration["AppConfiguration:MainWindow:Height"]));
-            Console.WriteLine($"Hello {Configuration.GetValue<string>("h")}");
-            //debugging
-            //Configuration.AsEnumerable().ToList().ForEach(x => Console.WriteLine(x.Value));
+        [TestMethod]
+        public void GetGradeRange_WhenCalledWithStartAndEndIndex_ShouldReturnGradeRange() 
+        {
+            string[] result = getGradeRange(1, 3);
+
+            CollectionAssert.AreEqual(new string[] { "B", "C", "D" }, result);
+        }
+
+        private string[] getGradeRange(int startIndex, int endIndex) 
+        {
+            var range = startIndex..(endIndex+1);
+            var result = GRADES[range];
+
+            return result;
         }
     }
 }
